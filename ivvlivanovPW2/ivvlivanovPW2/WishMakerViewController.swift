@@ -1,0 +1,292 @@
+//
+//  ViewController.swift
+//  ivvlivanovPW2
+//
+//  Created by Иван Иванов on 20.09.2025.
+//
+
+import UIKit
+
+
+class WishMakerViewController: UIViewController {
+    
+    private var titleView: UILabel!
+    private var redValue: CGFloat = 0
+    private var greenValue: CGFloat = 0
+    private var blueValue: CGFloat = 0
+    private var isSlidersShown: Bool = true
+    private weak var slidersStack: UIStackView?
+    private weak var toggleButton: UIButton?
+    
+    enum Constants {
+        static let sliderMin: Double = 0
+        static let sliderMax: Double = 1
+        
+        static let titleText: String = "Wish Maker"
+        
+        static let red: String = "Red"
+        static let green: String = "Green"
+        static let blue: String = "Blue"
+        static let stackTitle: String = "StackColor"
+        
+        static let titleFontSize: CGFloat = 32
+        
+        static let titleLeading: CGFloat = 20
+        static let titleTop: CGFloat = 30
+        
+        static let descriptionText: String = "Adjust the color of the screen"
+        
+        static let descriptionFontSize: CGFloat = 20
+        
+        static let buttonTitleWhenSlidersShown: String = "Hide sliders"
+        static let buttonTitleWhenSlidersHidden: String = "Show sliders"
+        static let buttonRadius: CGFloat = 12
+        static let buttonLeading: CGFloat = 40
+        static let buttonTop: CGFloat = 300
+        static let buttonWidth: CGFloat = 150
+        static let buttonHeight: CGFloat = 40
+        
+        static let buttonBGLEading: CGFloat = 210
+        static let buttonBGTitle: String = "Change bg randomly"
+        
+        static let buttonPickerTitle: String = "Pick a color"
+        static let buttonPickerTop: CGFloat = 355
+        static let buttonPickerLeading: CGFloat = 130
+        
+        static let stackRadius: CGFloat = 20
+        static let stackBottom: CGFloat = 40
+        static let stackLeading: CGFloat = 20
+        static let stackSpacing: CGFloat = 12
+        static let stackMarginTop: CGFloat = 12
+        static let stackMarginLeft: CGFloat = 16
+        static let stackMarginBottom: CGFloat = 12
+        static let stackMarginRight: CGFloat = 16
+        static let stackTrailing: CGFloat = 20
+        
+        static let hexWhite: Int = 0xFFFFFF
+        
+        static let descrtiptionLeading: CGFloat = 20
+        static let descriptionTop: CGFloat = 70
+        
+        static let initialBackground: UIColor = .systemPink
+        static let stackDefaultBackground: UIColor = .white
+    }
+
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureUI()
+    }
+   private func configureUI() {
+       view.backgroundColor = Constants.initialBackground
+       configureTitle()
+       configureDescription()
+       configureButtonForSliders()
+       configureButtonForBackgroundColor()
+       configureButtonForPicker()
+       configureSliders()
+       
+      
+    }
+    private func configureTitle() {
+        let title = UILabel()
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.text = Constants.titleText
+        title.font = UIFont.systemFont(ofSize: Constants.titleFontSize)
+        
+        view.addSubview(title)
+        NSLayoutConstraint.activate([
+            title.pinCenterX(to: view),
+            title.pinLeft(to: view, Constants.titleLeading),
+            title.pinTop(to: view.safeAreaLayoutGuide.topAnchor, Constants.titleTop)
+            ])
+    
+    }
+    private func configureDescription() {
+        let description = UILabel()
+        description.translatesAutoresizingMaskIntoConstraints = false
+        description.text = Constants.descriptionText
+        description.font = UIFont.boldSystemFont(ofSize: Constants.descriptionFontSize)
+        description.textColor = UIColor(hex: Constants.hexWhite)
+        
+        view.addSubview(description)
+        NSLayoutConstraint.activate([
+            description.pinCenterX(to: view),
+            description.pinLeft(to: view, Constants.descrtiptionLeading),
+            description.pinTop(to: view.safeAreaLayoutGuide.topAnchor, Constants.descriptionTop)
+        ])
+    }
+    
+    private func configureButtonForSliders() {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(isSlidersShown ? Constants.buttonTitleWhenSlidersShown : Constants.buttonTitleWhenSlidersHidden, for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.backgroundColor = UIColor(hex: Constants.hexWhite)
+        button.layer.cornerRadius = Constants.buttonRadius
+       
+       
+        
+        button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        
+        view.addSubview(button)
+        toggleButton = button
+        
+        NSLayoutConstraint.activate([
+            button.pinLeft(to: view, Constants.buttonLeading),
+            button.pinTop(to: view.safeAreaLayoutGuide.topAnchor, Constants.buttonTop),
+            button.widthAnchor.constraint(equalToConstant: Constants.buttonWidth),
+            button.heightAnchor.constraint(equalToConstant: Constants.buttonHeight)
+        ])
+
+    }
+    
+    private func configureButtonForBackgroundColor() {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(Constants.buttonBGTitle, for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.backgroundColor = UIColor(hex: Constants.hexWhite)
+        button.layer.cornerRadius = Constants.buttonRadius
+        button.sizeToFit()
+        
+        
+        button.addTarget(self, action: #selector(bgButtonTapped), for: .touchUpInside)
+        
+        view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.pinLeft(to: view, Constants.buttonBGLEading),
+            button.pinTop(to: view.safeAreaLayoutGuide.topAnchor, Constants.buttonTop),
+            button.widthAnchor.constraint(equalToConstant: Constants.buttonWidth),
+            button.heightAnchor.constraint(equalToConstant: Constants.buttonHeight)
+        ])
+    }
+    
+    private func configureButtonForPicker() {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(Constants.buttonPickerTitle, for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.backgroundColor = UIColor(hex: Constants.hexWhite)
+        button.layer.cornerRadius = Constants.buttonRadius
+        button.sizeToFit()
+        
+        
+        button.addTarget(self, action: #selector(presentColorPicker), for: .touchUpInside)
+        
+        view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.pinLeft(to: view, Constants.buttonPickerLeading),
+            button.pinTop(to: view.safeAreaLayoutGuide.topAnchor, Constants.buttonPickerTop),
+            button.widthAnchor.constraint(equalToConstant: Constants.buttonWidth),
+            button.heightAnchor.constraint(equalToConstant: Constants.buttonHeight)
+        ])
+    }
+    
+    private func configureSliders() {
+        
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = Constants.stackSpacing
+        stack.isLayoutMarginsRelativeArrangement = true
+        stack.layoutMargins = UIEdgeInsets(top: Constants.stackSpacing, left: Constants.stackMarginLeft, bottom: Constants.stackMarginBottom, right: Constants.stackMarginRight)
+        stack.layer.backgroundColor = Constants.stackDefaultBackground.cgColor
+        stack.layer.cornerRadius = Constants.stackRadius
+        stack.layer.masksToBounds = true
+
+        view.addSubview(stack)
+        slidersStack = stack
+        stack.isHidden = !isSlidersShown
+
+        let sliderRed = CustomSlider(title: Constants.red, min: Constants.sliderMin, max: Constants.sliderMax)
+        let sliderGreen = CustomSlider(title: Constants.green, min: Constants.sliderMin, max: Constants.sliderMax)
+        let sliderBlue = CustomSlider(title: Constants.blue, min: Constants.sliderMin, max: Constants.sliderMax)
+        let sliderStackBackground = CustomSlider(title: Constants.stackTitle , min: Constants.sliderMin, max: Constants.sliderMax)
+
+        [sliderRed, sliderGreen, sliderBlue, sliderStackBackground].forEach {
+            stack.addArrangedSubview($0)
+        }
+
+        NSLayoutConstraint.activate([
+            stack.pinLeft(to: view, Constants.stackLeading),
+            stack.pinRight(to: view, Constants.stackTrailing),
+            stack.pinBottom(to: view, Constants.stackBottom)
+        ])
+
+
+        sliderRed.valueChanged = { [weak self] value in
+            guard let self else { return }
+            self.redValue = CGFloat(value)
+            self.updateBackgroundColor()
+        }
+        sliderGreen.valueChanged = { [weak self] value in
+            guard let self else { return }
+            self.greenValue = CGFloat(value)
+            self.updateBackgroundColor()
+        }
+        sliderBlue.valueChanged = { [weak self] value in
+            guard let self else { return }
+            self.blueValue = CGFloat(value)
+            self.updateBackgroundColor()
+        }
+        sliderStackBackground.valueChanged = { value in
+            let color = UIColor(hex: Int(value * Double(Constants.hexWhite)))
+            stack.layer.backgroundColor = color.cgColor
+        }
+    }
+    private func updateBackgroundColor() {
+        view.backgroundColor = UIColor(
+            red: redValue,
+            green: greenValue,
+            blue: blueValue,
+            alpha: 1
+        )
+    }
+   
+    @objc private func buttonTapped() {
+        isSlidersShown.toggle()
+        let shouldShow = isSlidersShown
+
+        if let stack = slidersStack {
+            UIView.animate(withDuration: 0.25) {
+                stack.alpha = shouldShow ? 1 : 0
+            } completion: { _ in
+                stack.isHidden = !shouldShow
+            }
+        }
+        toggleButton?.setTitle(shouldShow ? Constants.buttonTitleWhenSlidersShown
+                                          : Constants.buttonTitleWhenSlidersHidden, for: .normal)
+    }
+    
+    @objc private func bgButtonTapped() {
+        view.backgroundColor = UIColor(hex:randomHexColor())
+    }
+    
+    @objc private func presentColorPicker() {
+        let picker = UIColorPickerViewController()
+        picker.supportsAlpha = false
+        picker.selectedColor = view.backgroundColor ?? .systemPink
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+    
+    private func randomHexColor() -> Int {
+        Int.random(in: 0x000000...0xFFFFFF)
+    }
+}
+extension UIColor {
+    convenience init(hex: Int) {
+        let r = CGFloat((hex >> 16) & 0xFF) / 255.0
+        let g = CGFloat((hex >> 8) & 0xFF) / 255.0
+        let b = CGFloat(hex & 0xFF) / 255.0
+        self.init(red: r, green: g, blue: b, alpha: 1)
+        
+    }
+}
+
+extension WishMakerViewController: UIColorPickerViewControllerDelegate {
+    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        view.backgroundColor = viewController.selectedColor
+    }
+}
