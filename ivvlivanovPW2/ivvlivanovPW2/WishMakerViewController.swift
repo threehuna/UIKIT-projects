@@ -80,7 +80,8 @@ class WishMakerViewController: UIViewController {
         static let initialBackground: UIColor = .systemPink
         static let stackDefaultBackground: UIColor = .white
         
-        static let backgroundDefaults = "BGDefault"
+        static let backgroundDefaults = "BGDefault" //HW3
+        static let stackColorDefaults: String = "StackDefault" //HW3
     }
 
 
@@ -210,7 +211,11 @@ class WishMakerViewController: UIViewController {
         stack.spacing = Constants.stackSpacing
         stack.isLayoutMarginsRelativeArrangement = true
         stack.layoutMargins = UIEdgeInsets(top: Constants.stackSpacing, left: Constants.stackMarginLeft, bottom: Constants.stackMarginBottom, right: Constants.stackMarginRight)
-        stack.layer.backgroundColor = Constants.stackDefaultBackground.cgColor
+        if let hex = UserDefaults.standard.value(forKey: Constants.stackColorDefaults) as? Int {
+            let stcolor = CGColor.from(hex: hex)
+            stack.layer.backgroundColor = stcolor
+        }
+        else{stack.layer.backgroundColor = .from(hex: 0xFFFFFF) }
         stack.layer.cornerRadius = Constants.stackRadius
         stack.layer.masksToBounds = true
 
@@ -227,11 +232,11 @@ class WishMakerViewController: UIViewController {
             stack.addArrangedSubview($0)
         }
 
-        NSLayoutConstraint.activate([
-            stack.pinLeft(to: view, Constants.stackLeading),
-            stack.pinRight(to: view, Constants.stackTrailing),
-            stack.pinBottom(to: view, Constants.stackBottom)
-        ])
+        
+        stack.pinLeft(to: view, Constants.stackLeading)
+        stack.pinRight(to: view, Constants.stackTrailing)
+        stack.pinBottom(to: view, Constants.stackBottom)
+      
 
 
         sliderRed.valueChanged = { [weak self] value in
@@ -251,7 +256,9 @@ class WishMakerViewController: UIViewController {
         }
         sliderStackBackground.valueChanged = { value in
             let color = UIColor(hex: Int(value * Double(Constants.hexWhite)))
-            stack.layer.backgroundColor = color.cgColor
+            let stackColor = color.cgColor //HW3
+            self.defaults.set(stackColor.hexValue, forKey: Constants.stackColorDefaults) //HW3
+            stack.layer.backgroundColor = stackColor //HW3
         }
     }
     
@@ -339,6 +346,22 @@ extension UIColor {
         }
 }
 
+extension CGColor { //HW3
+    var hexValue: Int { //HW3
+        guard let components = self.components else { return 0 } //HW3
+        let red = Int((components[0] * 255).rounded()) //HW3
+        let green = Int((components[1] * 255).rounded()) //HW3
+        let blue = Int((components[2] * 255).rounded()) //HW3
+        return (red << 16) | (green << 8) | blue
+    } //HW3
+    static func from(hex: Int) -> CGColor { //HW3
+        let r = CGFloat((hex >> 16) & 0xFF) / 255.0 //HW3
+        let g = CGFloat((hex >> 8) & 0xFF) / 255.0 //HW3
+        let b = CGFloat(hex & 0xFF) / 255.0 //HW3
+        return CGColor(red: r, green: g, blue: b, alpha: 1.0) //HW3
+    } //HW3
+} //HW3
+
 // MARK: -  UIColorPickerViewControllerDelegate
 extension WishMakerViewController: UIColorPickerViewControllerDelegate {
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
@@ -346,4 +369,5 @@ extension WishMakerViewController: UIColorPickerViewControllerDelegate {
         defaults.set(viewController.selectedColor.hex, forKey: Constants.backgroundDefaults) //HW3
     }
 }
+
 
