@@ -211,11 +211,11 @@ class WishMakerViewController: UIViewController {
         stack.spacing = Constants.stackSpacing
         stack.isLayoutMarginsRelativeArrangement = true
         stack.layoutMargins = UIEdgeInsets(top: Constants.stackSpacing, left: Constants.stackMarginLeft, bottom: Constants.stackMarginBottom, right: Constants.stackMarginRight)
-        if let hex = UserDefaults.standard.value(forKey: Constants.stackColorDefaults) as? Int {
-            let stcolor = CGColor.from(hex: hex)
-            stack.layer.backgroundColor = stcolor
+        if let hex = UserDefaults.standard.value(forKey: Constants.stackColorDefaults) as? Int { //HW3
+            let stcolor = CGColor.from(hex: hex)//HW3
+            stack.layer.backgroundColor = stcolor//HW3
         }
-        else{stack.layer.backgroundColor = .from(hex: 0xFFFFFF) }
+        else{stack.layer.backgroundColor = .from(hex: 0xFFFFFF) }//HW3
         stack.layer.cornerRadius = Constants.stackRadius
         stack.layer.masksToBounds = true
 
