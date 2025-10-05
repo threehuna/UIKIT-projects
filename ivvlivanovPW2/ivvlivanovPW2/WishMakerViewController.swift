@@ -18,6 +18,10 @@ class WishMakerViewController: UIViewController {
     private weak var slidersStack: UIStackView?
     private weak var toggleButton: UIButton?
     
+    private let defaults = UserDefaults.standard //HW3
+    
+    private let addWishButton: UIButton = UIButton(type: .system) //HW3
+    
     enum Constants {
         static let sliderMin: Double = 0
         static let sliderMax: Double = 1
@@ -42,7 +46,7 @@ class WishMakerViewController: UIViewController {
         static let buttonTitleWhenSlidersHidden: String = "Show sliders"
         static let buttonRadius: CGFloat = 12
         static let buttonLeading: CGFloat = 40
-        static let buttonTop: CGFloat = 300
+        static let buttonTop: CGFloat = 200 //HW3
         static let buttonWidth: CGFloat = 150
         static let buttonHeight: CGFloat = 40
         
@@ -50,11 +54,11 @@ class WishMakerViewController: UIViewController {
         static let buttonBGTitle: String = "Change bg randomly"
         
         static let buttonPickerTitle: String = "Pick a color"
-        static let buttonPickerTop: CGFloat = 355
+        static let buttonPickerTop: CGFloat = 255 //HW3
         static let buttonPickerLeading: CGFloat = 130
         
         static let stackRadius: CGFloat = 20
-        static let stackBottom: CGFloat = 40
+        static let stackBottom: CGFloat = 120 //HW3
         static let stackLeading: CGFloat = 20
         static let stackSpacing: CGFloat = 12
         static let stackMarginTop: CGFloat = 12
@@ -63,6 +67,11 @@ class WishMakerViewController: UIViewController {
         static let stackMarginRight: CGFloat = 16
         static let stackTrailing: CGFloat = 20
         
+        static let buttonBottom: CGFloat = 50 //HW3
+        static let buttonSide: CGFloat = 20 //HW3
+        static let buttonText: String = "Add Your Wish" //HW3
+        
+        
         static let hexWhite: Int = 0xFFFFFF
         
         static let descrtiptionLeading: CGFloat = 20
@@ -70,6 +79,8 @@ class WishMakerViewController: UIViewController {
         
         static let initialBackground: UIColor = .systemPink
         static let stackDefaultBackground: UIColor = .white
+        
+        static let backgroundDefaults = "BGDefault"
     }
 
 
@@ -78,13 +89,21 @@ class WishMakerViewController: UIViewController {
         configureUI()
     }
    private func configureUI() {
-       view.backgroundColor = Constants.initialBackground
+       if let hex = UserDefaults.standard.value(forKey: Constants.backgroundDefaults) as? Int {
+           view.backgroundColor = UIColor(hex: hex)
+       }
+       else{
+           view.backgroundColor = .systemPink
+       }
+       
+       
        configureTitle()
        configureDescription()
        configureButtonForSliders()
        configureButtonForBackgroundColor()
        configureButtonForPicker()
        configureSliders()
+       configureAddWishButton()
        
       
     }
@@ -175,12 +194,12 @@ class WishMakerViewController: UIViewController {
         button.addTarget(self, action: #selector(presentColorPicker), for: .touchUpInside)
         
         view.addSubview(button)
-        NSLayoutConstraint.activate([
-            button.pinLeft(to: view, Constants.buttonPickerLeading),
-            button.pinTop(to: view.safeAreaLayoutGuide.topAnchor, Constants.buttonPickerTop),
-            button.widthAnchor.constraint(equalToConstant: Constants.buttonWidth),
-            button.heightAnchor.constraint(equalToConstant: Constants.buttonHeight)
-        ])
+       
+        button.pinLeft(to: view, Constants.buttonPickerLeading)
+        button.pinTop(to: view.safeAreaLayoutGuide.topAnchor, Constants.buttonPickerTop)
+        button.setWidth(Constants.buttonWidth)
+        button.setHeight(Constants.buttonHeight)
+        
     }
     
     private func configureSliders() {
@@ -235,13 +254,32 @@ class WishMakerViewController: UIViewController {
             stack.layer.backgroundColor = color.cgColor
         }
     }
+    
+    private func configureAddWishButton() { //HW3
+        view.addSubview(addWishButton) //HW3
+        addWishButton.setHeight(Constants.buttonHeight) //HW3
+        addWishButton.pinBottom(to: view, Constants.buttonBottom) //HW3
+        addWishButton.pinHorizontal(to: view, Constants.buttonSide) //HW3
+        addWishButton.backgroundColor = .white //HW3
+        addWishButton.setTitleColor(.black, for: .normal) //HW3
+        addWishButton.setTitle(Constants.buttonText, for: .normal) //HW3
+        addWishButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18) //HW3
+    
+        addWishButton.layer.cornerRadius = Constants.buttonRadius //HW3
+        addWishButton.addTarget(self, action: #selector(addWishButtonPressed), for: .touchUpInside) //HW3
+        
+    } //HW3
+    
+    
     private func updateBackgroundColor() {
-        view.backgroundColor = UIColor(
+        let color = UIColor(
             red: redValue,
             green: greenValue,
             blue: blueValue,
             alpha: 1
         )
+        view.backgroundColor = color //HW3
+        defaults.set(color.hex, forKey: Constants.backgroundDefaults) //HW3
     }
    
     @objc private func buttonTapped() {
@@ -260,7 +298,10 @@ class WishMakerViewController: UIViewController {
     }
     
     @objc private func bgButtonTapped() {
-        view.backgroundColor = UIColor(hex:randomHexColor())
+       
+        let color = UIColor(hex:randomHexColor())
+        view.backgroundColor = color //HW3
+        defaults.set(color.hex, forKey: Constants.backgroundDefaults) //HW3
     }
     
     @objc private func presentColorPicker() {
@@ -274,19 +315,35 @@ class WishMakerViewController: UIViewController {
     private func randomHexColor() -> Int {
         Int.random(in: 0x000000...0xFFFFFF)
     }
-}
-extension UIColor {
-    convenience init(hex: Int) {
-        let r = CGFloat((hex >> 16) & 0xFF) / 255.0
-        let g = CGFloat((hex >> 8) & 0xFF) / 255.0
-        let b = CGFloat(hex & 0xFF) / 255.0
-        self.init(red: r, green: g, blue: b, alpha: 1)
-        
+    
+    @objc private func addWishButtonPressed() {
+        present(WishStoringViewController(), animated: true)
     }
 }
+extension UIColor {
+    var hex: Int { //HW3
+            var red: CGFloat = 0 //HW3
+            var green: CGFloat = 0 //HW3
+            var blue: CGFloat = 0 //HW3
+            var alpha: CGFloat = 0 //HW3
+            getRed(&red, green: &green, blue: &blue, alpha: &alpha) //HW3
+            let rgb = (Int)(red*255)<<16 | (Int)(green*255)<<8 | (Int)(blue*255)<<0 //HW3
+            return rgb //HW3
+        } //HW3
 
+        convenience init(hex: Int) {
+            let r = CGFloat((hex >> 16) & 0xFF) / 255.0
+            let g = CGFloat((hex >> 8) & 0xFF) / 255.0
+            let b = CGFloat(hex & 0xFF) / 255.0
+            self.init(red: r, green: g, blue: b, alpha: 1.0)
+        }
+}
+
+// MARK: -  UIColorPickerViewControllerDelegate
 extension WishMakerViewController: UIColorPickerViewControllerDelegate {
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
         view.backgroundColor = viewController.selectedColor
+        defaults.set(viewController.selectedColor.hex, forKey: Constants.backgroundDefaults) //HW3
     }
 }
+
